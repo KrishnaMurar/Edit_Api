@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>local storage</title>
+    
+  </head>
+  <body>
+    <header>
+      <h1>Add Details</h1>
+    </header>
+
+    
+      <form onsubmit="savetolocalStorage(event)">
+        <ul id="user"></ul>
+        <h1>User Details</h1>
+      
+          <label>Name:</label><br>
+        
+          <input id="'name" type="text" name="username" required/><br>
+       
+          <label>Email:</label><br>
+          <input id="email" type="email" name="emailId"required><br>
+         
+          <label>Phone_no</label><br>
+          <input id="phone" type="tel" name="phonenumber"/><br>
+    
+        <button>Submit</button> 
+      </form>
+      <ul id="user"></ul>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.1.3/axios.min.js" ></script>
+
+      
+
+    <script>
+     
+      function savetolocalStorage(event){
+        event.preventDefault();
+       
+        const name= event.target.username.value;
+        const email= event.target.emailId.value;
+        const phone=event.target.phonenumber.value;
+
+    const user = {
+        name,
+        email,
+        phone
+    }
+    
+    axios.post("https://crudcrud.com/api/b8f2f1c9fe964b2aa33403cdd7ac0897/appointmentData", user)
+
+    .then((response) => {
+        ListOfUserOnScreen(response.data)
+        console.log(response)
+    })
+    .catch((error) => {
+        console.log(error)
+    })
+   // localStorage.setItem(user.email,JSON.stringify(user));
+  // ListOfUserOnScreen(user);
+}
+window.addEventListener("DOMContentLoaded", () => {
+    axios.get("https://crudcrud.com/api/b8f2f1c9fe964b2aa33403cdd7ac0897/appointmentData")
+
+.then((response) => {
+    
+    console.log(response)
+
+    for(var i=0;i<response.data.length;i++){
+        ListOfUserOnScreen(response.data[i])
+    }
+})
+.catch((err) => {
+    console.log(err)
+})
+            })
+         
+function ListOfUserOnScreen(user){
+                
+    if(localStorage.getItem(user.email)){ 
+       RemoveFromScreen(user._id);
+ }
+  const parentNode = document.getElementById('user');
+  const childNode = `<li id=${user._id}> ${user.name}  -  ${user.email}  -  ${user.phone} 
+     <button onclick=editUserDetails('${user.email}','${user.name}','${user.phone}','${user._id}')>Edit</button>
+     <button onclick=deleteUser('${user._id}') style=background:red>X</button></li>`
+  
+ // const childNode = `<li class="list-group-item"> ${user.name}  -  ${user.email}  -  ${user.phone} <button class="btn btn-danger btn-sm float-right delete">`X</button><button class="btn btn-danger btn-sm float-left edit">>X</button></li>
+  parentNode.innerHTML += childNode;
+
+}
+
+// Edit user
+ function editUserDetails(email,name,phone,userId){
+  axios.put(`https://crudcrud.com/api/b8f2f1c9fe964b2aa33403cdd7ac0897/appointmentData/${userId}`,{
+    title:`${userId}`,
+    completed:true
+  })
+        .then((response) =>{
+          document.getElementById('name').value=name;
+          document.getElementById('email').value =email;
+ document.getElementById('phone').value =phone;
+
+          
+          RemoveFromScreen(userId);
+         // document.getElementById('name').value = name;
+        } )
+        .catch((err) =>{
+          console.log(err)
+        })
+ //document.getElementById('name').value=name;
+   document.getElementById('email').value =email;
+ document.getElementById('phone').value =phone;
+
+                deleteUser(userId)
+             }
+ 
+             function deleteUser(userId){
+              axios.delete(`https://crudcrud.com/api/b8f2f1c9fe964b2aa33403cdd7ac0897/appointmentData/${userId}`)
+        .then((response) =>{
+          RemoveFromScreen(userId);
+        } )
+        .catch((err) => {
+          console.log(err)
+        })
+            /*  console.log(email);
+              localStorage.removeItem(email);
+              RemoveFromScreen(email);
+             }*/
+            }
+ function RemoveFromScreen(userId){
+      /*  axios.delete(`https://crudcrud.com/api/9a75fc4fdf4d4585bed98f0d8685b8fb/appointmentData/${userId}`)
+        .then((response) =>{
+          console.log(response)
+        } )
+        .catch((err) => {
+          console.log(err)
+        })*/
+
+  const parentNode = document.getElementById('user');
+  const childNodeToBeDeleted = document.getElementById(userId);
+//parentNode.removeChild(childNodeToBeDeleted)
+  if(childNodeToBeDeleted){
+    parentNode.removeChild(childNodeToBeDeleted);
+  }
+ }
+    </script>
+
+  </body>
+</html>
